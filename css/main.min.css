@@ -1,0 +1,1 @@
+body,textarea,input[type=text],input[type=password],input[type=number],input[type=file],select{background-color:#000000!important;color:#ffffff!important;}textarea{height:27ch!important;resize:none!important;}button{width:100px!important;}#output-textarea:active{background-color:#00ff00!important;color:#008800!important;}
