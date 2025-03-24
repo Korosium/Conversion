@@ -25,7 +25,8 @@ const AVAILABLE_DECODING = {
         'Octal',
         'Decimal',
         'Hex',
-        'Base64'
+        'Base64',
+        'Base64 (URL Safe)'
     ],
     'Base32': [
         'Base32 (RFC-4648)',
@@ -81,13 +82,24 @@ const swap_values_html_elements = (e1, e2) => {
 const swap_html_elements = () => {
     const input_type = input_type_select.value;
     const output_type = output_type_select.value;
-    if(AVAILABLE_ENCODING.Common.indexOf(output_type) === -1 && AVAILABLE_ENCODING.Base32.indexOf(output_type) === -1){
+
+    // To deal with Base64 encoded strings.
+    if(AVAILABLE_DECODING.Common.indexOf(output_type) === 6){
+        input_type_select.value = 'Base64';
+        output_type_select.value = input_type;
+    }
+    
+    // Anything that is a string but has no equivalent in the encoding side of things.
+    else if(AVAILABLE_ENCODING.Common.indexOf(output_type) === -1 && AVAILABLE_ENCODING.Base32.indexOf(output_type) === -1){
         input_type_select.value = 'UTF-8';
         output_type_select.value = input_type;
     }
+
+    // If everything is fine swaps the two select fields values.
     else{
         swap_values_html_elements(input_type_select, output_type_select);
     }
+
     swap_values_html_elements(input_textarea, output_textarea);
     show_converted_input();
 };
@@ -96,7 +108,6 @@ const swap_html_elements = () => {
  * Show the converted input's new output.
  */
 const show_converted_input = () => output_textarea.value = convert_input(input_textarea.value, input_type_select.value, output_type_select.value);
-
 
 /**
  * Convert a radix based string to a byte array.
@@ -257,6 +268,9 @@ const to_hex = arr => to_radix(arr, 16, 2);
  */
 const to_base64 = arr => btoa(arr.map(x => String.fromCharCode(x)).join(''));
 
+
+const to_base64_safe = arr => btoa(arr.map(x => String.fromCharCode(x)).join('')).replaceAll('+', '-').replaceAll('/', '_');
+
 /**
  * Convert a byte array to a UTF-8 string.
  * 
@@ -286,6 +300,7 @@ const convert_input = (s, input_type, output_type) => {
             case AVAILABLE_DECODING.Common[3]: return to_dec(bytes);
             case AVAILABLE_DECODING.Common[4]: return to_hex(bytes);
             case AVAILABLE_DECODING.Common[5]: return to_base64(bytes);
+            case AVAILABLE_DECODING.Common[6]: return to_base64_safe(bytes);
 
             case AVAILABLE_DECODING.Base32[0]: return base32.RFC_4648.encode(bytes);
             case AVAILABLE_DECODING.Base32[1]: return base32.BASE_32_HEX.encode(bytes);
